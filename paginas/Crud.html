@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>CRUD en Django</title>
+        <link rel="stylesheet" type="text/css" href="estilo.css">
+        <style>
+            /* Estilos generales */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 20px 0;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5em;
+}
+
+/* Barra de navegación */
+nav ul {
+    background-color: #636363;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+nav ul li {
+    margin: 0 15px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    padding: 15px 20px;
+    display: block;
+}
+
+nav ul li a:hover {
+    background-color: #2c3e50;
+    border-radius: 5px;
+}
+
+/* Contenido principal */
+main {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+section {
+    margin-bottom: 40px;
+}
+
+section h2 {
+    font-size: 1.8em;
+    color: #2980b9;
+    border-bottom: 2px solid #2980b9;
+    padding-bottom: 10px;
+}
+
+section p {
+    line-height: 1.6;
+    font-size: 1.1em;
+}
+
+/* Estilos para los pasos del CRUD */
+ol {
+    padding-left: 20px;
+}
+
+ol li {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    padding-left: 10px;
+    line-height: 1.5;
+}
+
+ol li code {
+    background-color: #ecf0f1;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 0.9em;
+    color: #e74c3c;
+}
+
+ol li pre {
+    background-color: #333;
+    color: #ecf0f1;
+    padding: 15px;
+    border-radius: 5px;
+    overflow-x: auto;
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+
+/* Formularios */
+form {
+    margin-top: 20px;
+}
+
+form input, form textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #bdc3c7;
+    border-radius: 5px;
+}
+
+form button {
+    background-color: #2980b9;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #3498db;
+}
+
+/* Footer */
+footer {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 10px 0;
+    margin-top: 40px;
+}
+
+footer p {
+    margin: 0;
+    font-size: 0.9em;
+}
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>Cómo Crear un CRUD en Django desde Cero</h1>
+        </header>
+        <nav>
+            <ul>
+                <li><a href="../index.html">Inicio</a></li>
+                <li><a href="Contacto.html">Contacto</a></li>
+                <li><a href="Recursos.html">Recursos</a></li>
+                <li><a href="Nosotros.html">Nosotros</a></li>
+                <li><a href="">Crud</a></li>
+            </ul>
+        </nav>
+        <main>
+            <section>
+                <h2>¿Qué es un CRUD?</h2>
+                <p>Un CRUD es el conjunto de operaciones básicas que permiten la gestión de datos en una aplicación web: Crear, Leer, Actualizar y Eliminar (Create, Read, Update, Delete). En Django, estas operaciones se implementan fácilmente gracias a su ORM y sus vistas basadas en clases (CBVs).</p>
+            </section>
+
+            <section>
+                <h2>Paso a Paso para Crear un CRUD</h2>
+                <ol>
+                    <li><strong>Crear un proyecto Django</strong><br>
+                        Ejecuta el siguiente comando en la terminal:
+                        <code>django-admin startproject crud_project</code>
+                    </li>
+                    <li><strong>Crear una aplicación Django</strong><br>
+                        Dentro del proyecto, crea una nueva aplicación con:
+                        <code>python manage.py startapp productos</code>
+                    </li>
+                    <li><strong>Definir el modelo en models.py</strong><br>
+                        En el archivo <code>models.py</code> de la aplicación 'productos', define un modelo de ejemplo:
+                        <pre><code>
+from django.db import models
+
+class Producto(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField()
+    precio = models.DecimalField(max_digits=10, decimal_places=2)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.nombre
+                        </code></pre>
+                    </li>
+                    <li><strong>Crear las migraciones</strong><br>
+                        Ejecuta las migraciones para aplicar los cambios del modelo:
+                        <code>python manage.py makemigrations</code><br>
+                        <code>python manage.py migrate</code>
+                    </li>
+                    <li><strong>Crear vistas para las operaciones CRUD</strong><br>
+                        En <code>views.py</code>, define las vistas para manejar las operaciones de Crear, Leer, Actualizar y Eliminar:
+                        <pre><code>
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Producto
+from .forms import ProductoForm
+
+# Crear un producto
+def crear_producto(request):
+    if request.method == "POST":
+        form = ProductoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('listar_productos')
+    else:
+        form = ProductoForm()
+    return render(request, 'productos/crear_producto.html', {'form': form})
+
+# Leer los productos
+def listar_productos(request):
+    productos = Producto.objects.all()
+    return render(request, 'productos/listar_productos.html', {'productos': productos})
+
+# Actualizar un producto
+def actualizar_producto(request, pk):
+    producto = get_object_or_404(Producto, pk=pk)
+    if request.method == "POST":
+        form = ProductoForm(request.POST, instance=producto)
+        if form.is_valid():
+            form.save()
+            return redirect('listar_productos')
+    else:
+        form = ProductoForm(instance=producto)
+    return render(request, 'productos/actualizar_producto.html', {'form': form})
+
+# Eliminar un producto
+def eliminar_producto(request, pk):
+    producto = get_object_or_404(Producto, pk=pk)
+    if request.method == "POST":
+        producto.delete()
+        return redirect('listar_productos')
+    return render(request, 'productos/eliminar_producto.html', {'producto': producto})
+                        </code></pre>
+                    </li>
+                    <li><strong>Configurar URLs</strong><br>
+                        En <code>urls.py</code> de la aplicación, define las rutas para las vistas:
+                        <pre><code>
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.listar_productos, name='listar_productos'),
+    path('nuevo/', views.crear_producto, name='crear_producto'),
+    path('editar/<int:pk>/', views.actualizar_producto, name='actualizar_producto'),
+    path('eliminar/<int:pk>/', views.eliminar_producto, name='eliminar_producto'),
+]
+                        </code></pre>
+                    </li>
+                    <li><strong>Crear los formularios</strong><br>
+                        En <code>forms.py</code>, define el formulario para el modelo Producto:
+                        <pre><code>
+from django import forms
+from .models import Producto
+
+class ProductoForm(forms.ModelForm):
+    class Meta:
+        model = Producto
+        fields = ['nombre', 'descripcion', 'precio']
+                        </code></pre>
+                    </li>
+                    <li><strong>Crear las plantillas</strong><br>
+                        Crea los archivos HTML necesarios para mostrar los formularios y la lista de productos:
+                        <pre><code>
+<!-- crear_producto.html -->
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Guardar</button>
+</form>
+                        </code></pre>
+                    </li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 - CRUD en Django. Todos los derechos reservados.</p>
+        </footer>
+    </body>
+</html>
